@@ -1,0 +1,17 @@
+{{- if .Values.udpRoute.enabled -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: UDPRoute
+metadata:
+  name: {{ include "technitium-dns.fullname" . }}
+  labels:
+    {{- include "technitium-dns.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+    {{- with .Values.udpRoute.parentRefs }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  rules:
+    - backendRefs:
+        - name: {{ include "technitium-dns.fullname" . }}
+          port: {{ .Values.service.dns.port }}
+{{- end }}
