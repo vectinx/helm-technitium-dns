@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  release:
+    name: Release Helm chart
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Helm lint
+        run: helm lint .
+
+      - name: Check chart version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          chart_version=$(helm show chart . | awk '/^version:/ {print $2}')
+          tag_version="${RELEASE_TAG#v}"
+
+          echo "Chart version: $chart_version"
+          echo "Release tag:  $tag_version"
+
+          if [ "$chart_version" != "$tag_version" ]; then
+            echo "::error::Chart version ($chart_version) does not match release tag ($tag_version)"
+            exit 1
+          fi
+
+      - name: Package chart
+        run: |
+          helm package .
+
+      - name: Login to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" \
+            | helm registry login ghcr.io \
+                --username "${{ github.actor }}" \
+                --password-stdin
+
+      - name: Push chart
+        run: |
+          helm push \
+            technitium-dns-*.tgz \
+            oci://ghcr.io/${{ github.repository_owner }}/charts

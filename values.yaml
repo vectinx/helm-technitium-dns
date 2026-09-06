@@ -1,3 +1,4 @@
+---
 # Container image configuration.
 image:
   # Container image repository.
@@ -29,20 +30,20 @@ fullnameOverride: ""
 # Readiness probe configuration.
 # Determines whether the Technitium DNS pod is ready to receive traffic.
 # The pod is considered ready when the Technitium web interface responds successfully.
-# readinessProbe:
-#   httpGet:
-#     path: /
-#     port: web-http
-#   periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /
+    port: web-http
+  periodSeconds: 10
 
 # Liveness probe configuration.
 # Determines whether the Technitium DNS process is still running correctly.
 # The container is restarted if the liveness probe fails repeatedly.
-# livenessProbe:
-#   httpGet:
-#     path: /
-#     port: web-http
-#   periodSeconds: 30
+livenessProbe:
+  httpGet:
+    path: /
+    port: web-http
+  periodSeconds: 30
 
 
 # Kubernetes Services exposed by Technitium DNS.
