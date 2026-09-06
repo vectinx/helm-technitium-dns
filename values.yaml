@@ -1,0 +1,146 @@
+# Container image configuration.
+image:
+  # Container image repository.
+  repository: technitium/dns-server
+
+  # Image pull policy.
+  # IfNotPresent: use the locally cached image if available.
+  # Always: always check the registry for a newer image.
+  pullPolicy: IfNotPresent
+
+  # Container image tag.
+  # By default, the chart uses the application version (appVersion).
+  # Set this explicitly to pin a specific Technitium DNS version.
+  tag: ""
+
+# Image pull secrets used to authenticate against private container registries.
+# Leave empty when the image repository is public.
+imagePullSecrets: []
+
+# Override the chart name used in Kubernetes resource names.
+# Useful when deploying the chart under a custom name.
+nameOverride: ""
+
+# Override the fully qualified name used for Kubernetes resources.
+# Takes precedence over nameOverride.
+fullnameOverride: ""
+
+
+# Readiness probe configuration.
+# Determines whether the Technitium DNS pod is ready to receive traffic.
+# The pod is considered ready when the Technitium web interface responds successfully.
+# readinessProbe:
+#   httpGet:
+#     path: /
+#     port: web-http
+#   periodSeconds: 10
+
+# Liveness probe configuration.
+# Determines whether the Technitium DNS process is still running correctly.
+# The container is restarted if the liveness probe fails repeatedly.
+# livenessProbe:
+#   httpGet:
+#     path: /
+#     port: web-http
+#   periodSeconds: 30
+
+
+# Kubernetes Services exposed by Technitium DNS.
+service:
+  # DNS service.
+  # Port 53 is used for DNS queries.
+  dns:
+    # Service type.
+    # ClusterIP exposes DNS only inside the Kubernetes cluster.
+    type: ClusterIP
+
+    # DNS service port.
+    port: 53
+
+  # Web interface service.
+  # Port 5380 is the default Technitium DNS web interface/API port.
+  web:
+    # Service type.
+    # ClusterIP exposes the web interface only inside the Kubernetes cluster.
+    type: ClusterIP
+
+    # Technitium web interface port.
+    port: 5380
+
+
+# CPU and memory resources assigned to the Technitium DNS container.
+# Define requests to reserve resources and limits to cap resource consumption.
+resources: {}
+#   requests:
+#     cpu: 100m
+#     memory: 128Mi
+#   limits:
+#     cpu: 500m
+#     memory: 512Mi
+
+
+# Persistent storage configuration for Technitium DNS.
+# Technitium stores its configuration, zones, logs, and other persistent data
+# in its data directory. Enable this when the data must survive pod restarts
+# or rescheduling.
+persistence:
+  # Enable a PersistentVolumeClaim for Technitium data.
+  enabled: false
+
+  # StorageClass used to provision the PersistentVolume.
+  # Leave empty to use the cluster's default StorageClass.
+  storageClassName: ""
+
+  # Access modes requested by the PersistentVolumeClaim.
+  accessModes:
+    - ReadWriteOnce
+
+  # Persistent volume size.
+  size: 2Gi
+
+
+# Gateway API HTTPRoute configuration.
+# Used to expose the Technitium web interface through a Kubernetes Gateway.
+httpRoute:
+  # Enable the HTTPRoute resource.
+  enabled: false
+
+  # Gateway API parent reference.
+  # Specifies the Gateway and listener to which the HTTPRoute is attached.
+  parentRefs:
+  #  - name: default-gw
+  #    namespace: system-gw
+  #    sectionName: technitium-web
+
+  # Hostnames accepted by the HTTPRoute.
+  # Leave empty to match requests regardless of the Host header,
+  # or specify one or more DNS names, for example:
+  # hostnames:
+  #   - dns.example.com
+  hostnames: []
+
+
+# Gateway API TCPRoute configuration.
+# Used to expose the DNS TCP service through a Gateway API implementation.
+tcpRoute:
+  # Enable the TCPRoute resource.
+  enabled: false
+
+  # Gateway and listener to which the TCPRoute is attached.
+  parentRefs: []
+  #  - name: default-gw
+  #    namespace: system-gw
+  #    sectionName: dns-tcp
+
+
+# Gateway API UDPRoute configuration.
+# Used to expose the DNS UDP service through a Gateway API implementation.
+udpRoute:
+  # Enable the UDPRoute resource.
+  enabled: false
+
+  # Gateway and listener to which the UDPRoute is attached.
+  parentRefs: []
+  #  - name: default-gw
+  #    namespace: system-gw
+  #    sectionName: dns-udp

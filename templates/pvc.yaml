@@ -1,0 +1,17 @@
+{{- if .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "technitium-dns.fullname" . }}
+  labels:
+    {{- include "technitium-dns.labels" . | nindent 4 }}
+spec:
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size }}
+  {{- with .Values.persistence.storageClassName }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
+  accessModes:
+    {{- toYaml .Values.persistence.accessModes | nindent 4 }}
+{{- end }}

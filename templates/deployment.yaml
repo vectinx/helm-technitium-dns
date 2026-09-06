@@ -1,0 +1,63 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "technitium-dns.fullname" . }}
+  labels:
+    {{- include "technitium-dns.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "technitium-dns.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "technitium-dns.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ include "technitium-dns.fullname" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DNS_SERVER_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "technitium-dns.fullname" . }}
+                  key: admin-password
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: dns-data
+              mountPath: /etc/dns
+          {{- end }}
+          ports:
+            - name: dns-udp
+              containerPort: {{ .Values.service.dns.port }}
+              protocol: UDP
+            - name: dns-tcp
+              containerPort: {{ .Values.service.dns.port }}
+              protocol: TCP
+            - name: web-http
+              containerPort: {{ .Values.service.web.port }}
+              protocol: TCP
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: dns-data
+          persistentVolumeClaim:
+            claimName: {{ include "technitium-dns.fullname" . }}
+      {{- end }}
