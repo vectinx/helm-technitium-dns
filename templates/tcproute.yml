@@ -1,4 +1,5 @@
 {{- if .Values.tcpRoute.enabled -}}
+---
 apiVersion: gateway.networking.k8s.io/v1
 kind: TCPRoute
 metadata:
