@@ -1,0 +1,20 @@
+---
+name: Lint Code Base
+
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    name: Lint Helm chart
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      - name: Helm lint
+        run: helm lint .

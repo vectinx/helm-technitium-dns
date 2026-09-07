@@ -8,8 +8,17 @@ on:
       - develop
 
 jobs:
-  validate:
-    name: Validate Helm chart
+  call-lint:
+    uses: ./.github/workflows/lint.yaml
+  call-test:
+    uses: ./.github/workflows/test.yaml
+    needs:
+      - call-lint
+
+  publish-artifact:
+    name: Publish chart artifact
+    needs:
+      - call-test
     runs-on: ubuntu-latest
 
     steps:
@@ -18,9 +27,6 @@ jobs:
 
       - name: Setup Helm
         uses: azure/setup-helm@v4
-
-      - name: Helm lint
-        run: helm lint .
 
       - name: Package chart
         if: github.event_name == 'pull_request'

@@ -10,8 +10,17 @@ permissions:
   packages: write
 
 jobs:
+  call-lint:
+    uses: ./.github/workflows/lint.yaml
+  call-test:
+    uses: ./.github/workflows/test.yaml
+    needs:
+      - call-lint
+
   release:
     name: Release Helm chart
+    needs:
+      - call-test
     runs-on: ubuntu-latest
 
     steps:
@@ -20,9 +29,6 @@ jobs:
 
       - name: Setup Helm
         uses: azure/setup-helm@v4
-
-      - name: Helm lint
-        run: helm lint .
 
       - name: Check chart version
         env:
