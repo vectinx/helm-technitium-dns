@@ -112,7 +112,7 @@ httpRoute:
 
   # Gateway API parent reference.
   # Specifies the Gateway and listener to which the HTTPRoute is attached.
-  parentRefs:
+  parentRefs: []
   #  - name: default-gw
   #    namespace: system-gw
   #    sectionName: technitium-web
