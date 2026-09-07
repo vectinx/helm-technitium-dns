@@ -1,0 +1,48 @@
+suite: Persistence
+
+templates:
+  - templates/pvc.yaml
+
+tests:
+  - it: Should not create PVC by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: Should create PVC when persistence is enabled
+    set:
+      persistence.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: PersistentVolumeClaim
+
+  - it: Should use the configured storage class
+    set:
+      persistence.enabled: true
+      persistence.storageClassName: test-storage
+    asserts:
+      - equal:
+          path: spec.storageClassName
+          value: test-storage
+
+  - it: Should use the configured access modes
+    set:
+      persistence.enabled: true
+      persistence.accessModes:
+        - ReadWriteMany
+    asserts:
+      - equal:
+          path: spec.accessModes
+          value:
+            - ReadWriteMany
+
+  - it: Should use the configured storage size
+    set:
+      persistence.enabled: true
+      persistence.size: 10Gi
+    asserts:
+      - equal:
+          path: spec.resources.requests.storage
+          value: 10Gi

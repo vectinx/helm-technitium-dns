@@ -1,0 +1,57 @@
+suite: Web Service
+
+templates:
+  - templates/services/web.yaml
+
+tests:
+  - it: Should not create Web Service by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: Should create Web Service when enabled
+    set:
+      service.web.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Service
+      - equal:
+          path: spec.type
+          value: ClusterIP
+
+  - it: Should expose Web Service over TCP
+    set:
+      service.web.enabled: true
+    asserts:
+      - equal:
+          path: spec.ports[0].name
+          value: web-http
+      - equal:
+          path: spec.ports[0].port
+          value: 5380
+      - equal:
+          path: spec.ports[0].protocol
+          value: TCP
+      - equal:
+          path: spec.ports[0].targetPort
+          value: web-http
+
+  - it: Should allow changing Web Service type
+    set:
+      service.web.enabled: true
+      service.web.type: NodePort
+    asserts:
+      - equal:
+          path: spec.type
+          value: NodePort
+
+  - it: Should allow changing Web Service port
+    set:
+      service.web.enabled: true
+      service.web.port: 8080
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 8080

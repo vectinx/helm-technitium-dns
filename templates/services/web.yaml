@@ -1,0 +1,18 @@
+{{- if .Values.service.web.enabled -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "technitium-dns.fullname" . }}-web
+  labels:
+    {{- include "technitium-dns.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.web.type }}
+  selector:
+    {{- include "technitium-dns.selectorLabels" . | nindent 6 }}
+  ports:
+    - name: web-http
+      port: {{ .Values.service.web.port }}
+      protocol: TCP
+      targetPort: web-http
+{{- end }}

@@ -1,0 +1,59 @@
+suite: Deployment
+
+templates:
+  - templates/deployment.yaml
+
+tests:
+  - it: Should use Chart.AppVersion when image tag is empty
+    chart:
+      appVersion: 1.2.3
+    set:
+      image.tag: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: technitium/dns-server:1.2.3
+
+  - it: Should use explicit image tag when configured
+    set:
+      image.tag: 1.2.4
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: technitium/dns-server:1.2.4
+
+  - it: Should substitute image.pullPolicy into the container parameters
+    set:
+      image.pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].imagePullPolicy
+          value: Always
+
+  - it: Should render configured image pull secrets
+    set:
+      imagePullSecrets:
+        - name: test-secret-1
+        - name: test-secret-2
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.imagePullSecrets
+          count: 2
+      - equal:
+          path: spec.template.spec.imagePullSecrets
+          value:
+            - name: test-secret-1
+            - name: test-secret-2
+
+  - it: Should mount persistent storage when persistence is enabled
+    set:
+      persistence.enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes[0].name
+          value: dns-data
+      - exists:
+          path: spec.template.spec.volumes[0].persistentVolumeClaim.claimName
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[0].name
+          value: dns-data

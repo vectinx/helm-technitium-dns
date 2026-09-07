@@ -1,0 +1,71 @@
+suite: DNS Service
+
+templates:
+  - templates/services/dns.yaml
+
+tests:
+  - it: Should create DNS Service by default
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Service
+      - equal:
+          path: spec.type
+          value: ClusterIP
+
+  - it: Should expose DNS over UDP
+    asserts:
+      - equal:
+          path: spec.ports[0].name
+          value: dns-udp
+      - equal:
+          path: spec.ports[0].port
+          value: 53
+      - equal:
+          path: spec.ports[0].protocol
+          value: UDP
+      - equal:
+          path: spec.ports[0].targetPort
+          value: dns-udp
+
+  - it: Should expose DNS over TCP
+    asserts:
+      - equal:
+          path: spec.ports[1].name
+          value: dns-tcp
+      - equal:
+          path: spec.ports[1].port
+          value: 53
+      - equal:
+          path: spec.ports[1].protocol
+          value: TCP
+      - equal:
+          path: spec.ports[1].targetPort
+          value: dns-tcp
+
+  - it: Should allow changing DNS Service type
+    set:
+      service.dns.type: LoadBalancer
+    asserts:
+      - equal:
+          path: spec.type
+          value: LoadBalancer
+
+  - it: Should allow changing DNS Service port
+    set:
+      service.dns.port: 5353
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 5353
+      - equal:
+          path: spec.ports[1].port
+          value: 5353
+
+  - it: Should not create DNS Service when disabled
+    set:
+      service.dns.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
