@@ -51,6 +51,8 @@ service:
   # DNS service.
   # Port 53 is used for DNS queries.
   dns:
+    # Whether to create the DNS service.
+    enabled: true
     # Service type.
     # ClusterIP exposes DNS only inside the Kubernetes cluster.
     type: ClusterIP
@@ -61,6 +63,8 @@ service:
   # Web interface service.
   # Port 5380 is the default Technitium DNS web interface/API port.
   web:
+    # Whether to create the web interface service.
+    enabled: false
     # Service type.
     # ClusterIP exposes the web interface only inside the Kubernetes cluster.
     type: ClusterIP

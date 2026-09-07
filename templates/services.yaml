@@ -1,3 +1,4 @@
+{{- if .Values.service.dns.enabled -}}
 ---
 apiVersion: v1
 kind: Service
@@ -19,7 +20,8 @@ spec:
       port: {{ .Values.service.dns.port }}
       protocol: TCP
       targetPort: dns-tcp
-
+{{- end }}
+{{- if .Values.service.web.enabled -}}
 ---
 apiVersion: v1
 kind: Service
@@ -36,3 +38,4 @@ spec:
       port: {{ .Values.service.web.port }}
       protocol: TCP
       targetPort: web-http
+{{- end }}
